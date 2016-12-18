@@ -128,7 +128,7 @@ Website: www.ilikebigbits.com
 		Make Loguru try to do unsafe but useful things,
 		like printing a stack trace, when catching signals.
 		This may lead to bad things like deadlocks in certain situations.
-	
+
 	LOGURU_USE_FMTLIB (default 0):
 		Use fmtlib formatting. See https://github.com/fmtlib/fmt
 
@@ -1442,7 +1442,7 @@ namespace loguru
 #else
 		char* buff = nullptr;
 		int result = vasprintf(&buff, format, vlist);
-		CHECK_F(result >= 0, "Bad string format: '%s'", format);
+		CHECK_F(result >= 0, "Bad string format: '{}'", format);
 		return Text(buff);
 #endif
 	}
@@ -1490,7 +1490,7 @@ namespace loguru
 				if (value_str[0] == '\0') {
 					// Value in separate argument
 					arg_it += 1;
-					CHECK_LT_F(arg_it, argc, "Missing verbosiy level after %s", verbosity_flag);
+					CHECK_LT_F(arg_it, argc, "Missing verbosiy level after {}", verbosity_flag);
 					value_str = argv[arg_it];
 					out_argc -= 1;
 				}
@@ -1510,7 +1510,7 @@ namespace loguru
 					char* end = 0;
 					g_stderr_verbosity = static_cast<int>(strtol(value_str, &end, 10));
 					CHECK_F(end && *end == '\0',
-						"Invalid verbosity. Expected integer, INFO, WARNING, ERROR or OFF, got '%s'", value_str);
+						"Invalid verbosity. Expected integer, INFO, WARNING, ERROR or OFF, got '{}'", value_str);
 				}
 			} else {
 				argv[arg_dest++] = argv[arg_it];
@@ -1613,7 +1613,7 @@ namespace loguru
 		if (!getcwd(s_current_dir, sizeof(s_current_dir)))
 		{
 			const auto error_text = errno_as_text();
-			LOG_F(WARNING, "Failed to get current working directory: %s", error_text.c_str());
+			LOG_F(WARNING, "Failed to get current working directory: {}", error_text.c_str());
 		}
 
 		s_arguments = "";
@@ -1651,12 +1651,12 @@ namespace loguru
 			}
 			fflush(stderr);
 		}
-		LOG_F(INFO, "arguments: %s", s_arguments.c_str());
+		LOG_F(INFO, "arguments: {}", s_arguments);
 		if (strlen(s_current_dir) != 0)
 		{
-			LOG_F(INFO, "Current dir: %s", s_current_dir);
+			LOG_F(INFO, "Current dir: {}", s_current_dir);
 		}
-		LOG_F(INFO, "stderr verbosity: %d", g_stderr_verbosity);
+		LOG_F(INFO, "stderr verbosity: {}", g_stderr_verbosity);
 		LOG_F(INFO, "-----------------------------------");
 
 		install_signal_handlers();
@@ -1748,7 +1748,7 @@ namespace loguru
 			if (mkdir(file_path, 0755) == -1) {
 	#endif
 				if (errno != EEXIST) {
-					LOG_F(ERROR, "Failed to create directory '%s'", file_path);
+					LOG_F(ERROR, "Failed to create directory '{}'", file_path);
 					LOG_IF_F(ERROR, errno == EACCES,       "EACCES");
 					LOG_IF_F(ERROR, errno == ENAMETOOLONG, "ENAMETOOLONG");
 					LOG_IF_F(ERROR, errno == ENOENT,       "ENOENT");
@@ -1803,7 +1803,7 @@ namespace loguru
 		fprintf(file, "%s\n", PREAMBLE_EXPLAIN.c_str());
 		fflush(file);
 
-		LOG_F(INFO, "Logging to '%s', mode: '%s', verbosity: %d", path, mode_str, verbosity);
+		LOG_F(INFO, "Logging to '{}', mode: '{}', verbosity: {}", path, mode_str, verbosity);
 		return true;
 	}
 
@@ -1851,7 +1851,7 @@ namespace loguru
 			on_callback_change();
 			return true;
 		} else {
-			LOG_F(ERROR, "Failed to locate callback with id '%s'", id);
+			LOG_F(ERROR, "Failed to locate callback with id '{}'", id);
 			return false;
 		}
 	}
@@ -2115,12 +2115,12 @@ namespace loguru
 		if (message.verbosity == Verbosity_FATAL) {
 			auto st = loguru::stacktrace(stack_trace_skip + 2);
 			if (!st.empty()) {
-				RAW_LOG_F(ERROR, "Stack trace:\n%s", st.c_str());
+				RAW_LOG_F(ERROR, "Stack trace:\n{}", st.c_str());
 			}
 
 			auto ec = loguru::get_error_context();
 			if (!ec.empty()) {
-				RAW_LOG_F(ERROR, "%s", ec.c_str());
+				RAW_LOG_F(ERROR, "{}", ec.c_str());
 			}
 		}
 
@@ -2682,7 +2682,7 @@ namespace loguru
 		sig_action.sa_sigaction = &signal_handler;
 		for (const auto& s : ALL_SIGNALS) {
 			CHECK_F(sigaction(s.number, &sig_action, NULL) != -1,
-				"Failed to install handler for %s", s.name);
+				"Failed to install handler for {}", s.name);
 		}
 	}
 } // namespace loguru
